@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Image to Firebase</title>
+</head>
+<body>
+  <input type="file" id="file">
+  <br>
+  <button onclick="uploadImage()">Upload Image</button>
+  <br>
+  <div id="image-container"></div>
+
+  <!-- Include Firebase JavaScript SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-storage.js"></script>
+
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      // Your Firebase config object goes here
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Add the uploadImage function here
+    function uploadImage() {
+      const fileInput = document.getElementById("file");
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = function() {
+        const img = new Image();
+        img.onload = function() {
+          // Create a reference to the Firebase storage bucket where you want to upload the image
+          const storageRef = firebase.storage().ref().child('images/' + file.name);
+          // Upload the image file to Firebase
+          storageRef.put(file).then(function(snapshot) {
+            // Once the upload is complete, get the download URL of the image
+            storageRef.getDownloadURL().then(function(url) {
+              // Use the download URL to display the image on your website
+              document.getElementById("image-container").appendChild(img);
+              const urlDiv = document.createElement("div");
+              urlDiv.textContent = "Image URL: " + url;
+              document.getElementById("image-container").appendChild(urlDiv);
+              console.log(url);
+            });
+          });
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
